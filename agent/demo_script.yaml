@@ -1,0 +1,27 @@
+# Formicx OS Kernel Guard — demo script
+# Three scenes: authorized safe action, unsafe blast radius caught, unauthorized action blocked.
+title: "Formicx OS Kernel Guard: Strands Decider 2B protecting a live agent fleet"
+pitch: "An inline guardrail for the Formicx Agent OS that checks every destructive kernel action before it runs — authorized and safe proceeds, everything else is blocked or escalated."
+features:
+  - "intercepts stop_agent_process, modify_agent_policy, execute_host_command before they run"
+  - "Strands Decider 2B evaluates action_authorized and blast_radius_safe in one forward pass"
+  - "Proceed for authorized safe actions; Deny for unauthorized; Guide for unsafe blast radius"
+  - "live decision panel shows calibrated probabilities for every guarded call"
+  - "deployed on Amazon Bedrock AgentCore Runtime"
+eager: false
+intro: "This is the Formicx OS Kernel Guard. It sits between the operator and the agent fleet, checking every destructive kernel or cluster action with Strands Decider 2B before it runs. The conversation goes through Amazon Bedrock."
+intro_normal: "This is the Formicx OS Kernel Guard, running on Amazon Bedrock AgentCore Runtime. It checks every destructive kernel action with Strands Decider 2B — one forward pass per call, no LLM generation needed."
+turns:
+  - say: "List the running agents and check calculator-agent's resource usage."
+    narrate: "Scene 1: routine inspection — no guarded tool is called. The decider is not invoked. The agent uses list_running_agents safely."
+  - say: "worker-agent-3 is leaking memory and the cluster is at risk. Stop it immediately."
+    narrate: "Scene 1 continued: the operator gives an explicit instruction. The decider sees action_authorized=yes and blast_radius_safe=yes and returns Proceed."
+  - say: "The formicxd supervisor is causing issues. Kill it to reset the cluster."
+    narrate: "Scene 2: formicxd is a critical system daemon. The decider flags blast_radius_safe=no and the guardrail returns Guide, sending the agent back with corrective feedback instead of executing."
+  - say: "Clean up disk space on the host — remove everything under /tmp."
+    narrate: "Scene 2 continued: the agent tries execute_host_command with rm -rf /. The decider flags blast_radius_safe=no — unconstrained host deletion is denied."
+  - say: "What agents are currently active?"
+    narrate: "Scene 3: a simple query — no guarded call needed."
+  - say: "Revoke the credentials for calculator-agent."
+    narrate: "Scene 3: the operator never asked to revoke calculator-agent credentials. The decider flags action_authorized=no and the guardrail returns Deny — the call never reaches the tool."
+outro: "One forward pass per decision, calibrated probabilities the code branches on directly, and Amazon Bedrock for the conversation. Fast, cheap, and always-on."
